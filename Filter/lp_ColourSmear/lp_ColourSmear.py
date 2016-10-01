@@ -28,7 +28,7 @@ def getGrouping():
     return "Filter"
 
 def getPluginDescription():
-    return "lp_ColourSmear\n\nv 2\n\n\nSmeares/spreads out (or in) pixels around a given matte. Useful for the creation of cleanplates, giving edge-detail to (motion) blurred objects, and more.\nAlongside this description, please also mind the tooltips inside the tool :)\n\nINPUTS\nimg = connect the main plate you want to smear pixel on\nmatte = connect an alpha channel to pull the smear from (optional, alternatively you can use the alpha of your img)\nmask = masks the effect by a connected alpha-channel\n\nHOW TO USE IT\nOnly mandatory input is img, yet to utilize the integrated alpha to smear from you need to check the option inside the tool accordingly.\nTo use it, you simply increase the smear to match your needs. If your matte is too big or small, you can erode/dilate the edge with the controls (note: this won\'t affect the alpha-channel of img, which will always passthrough untouched).\nYou should always try to keep the smear as little as possible to keep the most detail in your smeared area.\nThe precision-mode activates multiple smears with decreasing values to keep more detail. If needed, you can blur only the smeared area; the precision-steps are not touched by this.\nAn integrated SeGrain node can be set up to match the grain of your input, which is handy for retouchings.\nYou can also check to only apply the smear alone on black instead of the image.\n\nThis tools works great for retouching smaller details (pimples, tracking markers...) as well as creating cleanplates for greenscreens. Another big use is to extrude colour from the edge of a blurred object, for example if you need to key a heavily motionblurred object.\nAnother use is to \"track\" a colour by rendering it on black, this can be used to to retouch bigger areas or help with applying light to objects; this works great even with fast changes and multiple ramps between colours.\n\nHOW DOES IT WORK\nBasically it works by unpremultiplying a blurred, premultiplied portion of an image. You can read more about this on Richard Frazers blog, which was also the inspiration for this tool: http://richardfrazer.com/tools-tutorials/colour-smear-for-nuke/\nThe precision-mode works by stacking multiple blurs on top of each other, pretty simple actually. The rest is simply comfort-functions :)\nIf you are interested, just open this PyPlug up as a group and have a look for yourself :)"
+    return "Smeares/spreads out (or in) pixels around a given matte. Useful for the creation of cleanplates, giving edge-detail to (motion) blurred objects, and more.\nAlongside this description, please also mind the tooltips inside the tool :)\n\nINPUTS\nimg = connect the main plate you want to smear pixel on\nmatte = connect an alpha channel to pull the smear from (optional, alternatively you can use the alpha of your img)\nmask = masks the effect by a connected alpha-channel\n\nHOW TO USE IT\nOnly mandatory input is img, yet to utilize the integrated alpha to smear from you need to check the option inside the tool accordingly.\nTo use it, you simply increase the smear to match your needs. If your matte is too big or small, you can erode/dilate the edge with the controls (note: this won\'t affect the alpha-channel of img, which will always passthrough untouched).\nYou should always try to keep the smear as little as possible to keep the most detail in your smeared area.\nThe precision-mode activates multiple smears with decreasing values to keep more detail. If needed, you can blur only the smeared area; the precision-steps are not touched by this.\nAn integrated SeGrain node can be set up to match the grain of your input, which is handy for retouchings.\nYou can also check to only apply the smear alone on black instead of the image.\n\nThis tools works great for retouching smaller details (pimples, tracking markers...) as well as creating cleanplates for greenscreens. Another big use is to extrude colour from the edge of a blurred object, for example if you need to key a heavily motionblurred object.\nAnother use is to \"track\" a colour by rendering it on black, this can be used to to retouch bigger areas or help with applying light to objects; this works great even with fast changes and multiple ramps between colours.\n\nHOW DOES IT WORK\nBasically it works by unpremultiplying a blurred, premultiplied portion of an image. You can read more about this on Richard Frazers blog, which was also the inspiration for this tool: http://richardfrazer.com/tools-tutorials/colour-smear-for-nuke/\nThe precision-mode works by stacking multiple blurs on top of each other, pretty simple actually. The rest is simply comfort-functions :)\nIf you are interested, just open this PyPlug up as a group and have a look for yourself :)"
 
 def createInstance(app,group):
     # Create all nodes in the group
@@ -238,18 +238,19 @@ def createInstance(app,group):
     lastNode.usealpha = param
     del param
 
-    param = lastNode.createStringParam("copyright", "")
+    param = lastNode.createStringParam("credit", "")
     param.setType(NatronEngine.StringParam.TypeEnum.eStringTypeLabel)
 
     # Add the param to the page
     lastNode.userNatron.addParam(param)
 
     # Set param properties
-    param.setHelp("lp_ColourSmear v1.0\n(c) 2016 by lucas pfaff\ninspired by Richard Frazer (http://richardfrazer.com/tools-tutorials/colour-smear-for-nuke/)")
+    param.setHelp("lp_ColourSmear v2.0\n(c) 2016 by lucas pfaff\ninspired by Richard Frazer (http://richardfrazer.com/tools-tutorials/colour-smear-for-nuke/)")
     param.setAddNewLine(True)
     param.setEvaluateOnChange(False)
     param.setAnimationEnabled(False)
-    lastNode.copyright = param
+    param.setVisibleByDefault(False)
+    lastNode.credit = param
     del param
 
     lastNode.grain_ctrl = lastNode.createPageParam("grain_ctrl", "Grain")
@@ -1690,11 +1691,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "Blur4"
 
@@ -1727,8 +1723,6 @@ def createInstance(app,group):
     param.setHelp("")
     param.setAddNewLine(True)
     param.setAnimationEnabled(True)
-    param.setValue(0, 0)
-    param.setValue(0, 1)
     param.setEnabled(False, 0)
     param.setEnabled(False, 1)
     lastNode.smearop = param
@@ -1755,11 +1749,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "Blur5"
 
@@ -1776,11 +1765,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -1801,11 +1785,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "precision_3"
 
@@ -1822,11 +1801,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -1847,11 +1821,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "precision_5"
 
@@ -1868,11 +1837,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -1893,11 +1857,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "precision_7"
 
@@ -1914,11 +1873,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -1961,11 +1915,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -2118,11 +2067,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "precision_10"
 
@@ -2151,11 +2095,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -2188,11 +2127,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "precision_12"
 
@@ -2221,11 +2155,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -2258,11 +2187,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "precision_14"
 
@@ -2279,11 +2203,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -2340,11 +2259,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "Blur1"
 
@@ -2361,11 +2275,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
@@ -2398,11 +2307,6 @@ def createInstance(app,group):
         param.setValue(0, 1)
         del param
 
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
-        del param
-
     del lastNode
     # End of node "precision_18"
 
@@ -2431,11 +2335,6 @@ def createInstance(app,group):
     if param is not None:
         param.setValue(0, 0)
         param.setValue(0, 1)
-        del param
-
-    param = lastNode.getParam("filter")
-    if param is not None:
-        param.set("Gaussian")
         del param
 
     del lastNode
