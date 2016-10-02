@@ -144,6 +144,8 @@ def createInstance(app,group):
     param.setHelp("Size of the blur or median operation. (note: median works not in axis, so if you hit the 2 to only the w value will be used)")
     param.setAddNewLine(True)
     param.setAnimationEnabled(True)
+    param.setValue(9.529999999999999, 0)
+    param.setValue(9.529999999999999, 1)
     lastNode.Blur1size = param
     del param
 
@@ -183,7 +185,6 @@ def createInstance(app,group):
     param.setAddNewLine(True)
     param.setEvaluateOnChange(False)
     param.setAnimationEnabled(False)
-    param.setVisibleByDefault(False)
     lastNode.credit = param
     del param
 
@@ -274,11 +275,6 @@ def createInstance(app,group):
         param.setValue(False)
         del param
 
-    param = lastNode.getParam("NatronOfxParamProcessG")
-    if param is not None:
-        param.setValue(True)
-        del param
-
     param = lastNode.getParam("NatronOfxParamProcessA")
     if param is not None:
         param.setValue(False)
@@ -286,13 +282,18 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
-        param.setValue(0, 1)
+        param.setValue(9.529999999999999, 0)
+        param.setValue(9.529999999999999, 1)
         del param
 
     param = lastNode.getParam("boundary")
     if param is not None:
         param.set("Nearest")
+        del param
+
+    param = lastNode.getParam("expandRoD")
+    if param is not None:
+        param.setValue(False)
         del param
 
     del lastNode
@@ -360,11 +361,6 @@ def createInstance(app,group):
         param.setValue(False)
         del param
 
-    param = lastNode.getParam("NatronOfxParamProcessG")
-    if param is not None:
-        param.setValue(True)
-        del param
-
     param = lastNode.getParam("NatronOfxParamProcessA")
     if param is not None:
         param.setValue(False)
@@ -372,13 +368,18 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
-        param.setValue(0, 1)
+        param.setValue(9.529999999999999, 0)
+        param.setValue(9.529999999999999, 1)
         del param
 
     param = lastNode.getParam("boundary")
     if param is not None:
         param.set("Nearest")
+        del param
+
+    param = lastNode.getParam("expandRoD")
+    if param is not None:
+        param.setValue(False)
         del param
 
     del lastNode
@@ -398,14 +399,9 @@ def createInstance(app,group):
         param.setValue(False)
         del param
 
-    param = lastNode.getParam("NatronOfxParamProcessG")
-    if param is not None:
-        param.setValue(True)
-        del param
-
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
+        param.setValue(9, 0)
         del param
 
     del lastNode
@@ -534,6 +530,11 @@ def createInstance(app,group):
         param.setValue(True)
         del param
 
+    param = lastNode.getParam("premult")
+    if param is not None:
+        param.setValue(True)
+        del param
+
     del lastNode
     # End of node "Grade1"
 
@@ -551,11 +552,6 @@ def createInstance(app,group):
         param.setValue(False)
         del param
 
-    param = lastNode.getParam("NatronOfxParamProcessG")
-    if param is not None:
-        param.setValue(True)
-        del param
-
     param = lastNode.getParam("NatronOfxParamProcessA")
     if param is not None:
         param.setValue(False)
@@ -563,13 +559,18 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
-        param.setValue(0, 1)
+        param.setValue(9.529999999999999, 0)
+        param.setValue(9.529999999999999, 1)
         del param
 
     param = lastNode.getParam("boundary")
     if param is not None:
         param.set("Nearest")
+        del param
+
+    param = lastNode.getParam("expandRoD")
+    if param is not None:
+        param.setValue(False)
         del param
 
     del lastNode
@@ -589,14 +590,9 @@ def createInstance(app,group):
         param.setValue(False)
         del param
 
-    param = lastNode.getParam("NatronOfxParamProcessG")
-    if param is not None:
-        param.setValue(True)
-        del param
-
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
+        param.setValue(9, 0)
         del param
 
     del lastNode
@@ -616,11 +612,6 @@ def createInstance(app,group):
         param.setValue(False)
         del param
 
-    param = lastNode.getParam("NatronOfxParamProcessG")
-    if param is not None:
-        param.setValue(True)
-        del param
-
     param = lastNode.getParam("NatronOfxParamProcessA")
     if param is not None:
         param.setValue(False)
@@ -628,13 +619,18 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
-        param.setValue(0, 1)
+        param.setValue(9.529999999999999, 0)
+        param.setValue(9.529999999999999, 1)
         del param
 
     param = lastNode.getParam("boundary")
     if param is not None:
         param.set("Nearest")
+        del param
+
+    param = lastNode.getParam("expandRoD")
+    if param is not None:
+        param.setValue(False)
         del param
 
     del lastNode
@@ -654,14 +650,9 @@ def createInstance(app,group):
         param.setValue(False)
         del param
 
-    param = lastNode.getParam("NatronOfxParamProcessG")
-    if param is not None:
-        param.setValue(True)
-        del param
-
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
+        param.setValue(9, 0)
         del param
 
     del lastNode
@@ -681,14 +672,9 @@ def createInstance(app,group):
         param.setValue(False)
         del param
 
-    param = lastNode.getParam("NatronOfxParamProcessG")
-    if param is not None:
-        param.setValue(True)
-        del param
-
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
+        param.setValue(9, 0)
         del param
 
     del lastNode
@@ -790,6 +776,16 @@ def createInstance(app,group):
     lastNode.setColor(0.3, 0.37, 0.776)
     groupMerge1 = lastNode
 
+    param = lastNode.getParam("NatronOfxParamStringSublabelName")
+    if param is not None:
+        param.setValue("copy")
+        del param
+
+    param = lastNode.getParam("operation")
+    if param is not None:
+        param.set("copy")
+        del param
+
     param = lastNode.getParam("enableMask_Mask")
     if param is not None:
         param.setValue(True)
@@ -855,8 +851,13 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
-        param.setValue(0, 1)
+        param.setValue(9.529999999999999, 0)
+        param.setValue(9.529999999999999, 1)
+        del param
+
+    param = lastNode.getParam("expandRoD")
+    if param is not None:
+        param.setValue(False)
         del param
 
     del lastNode
@@ -878,7 +879,7 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(0, 0)
+        param.setValue(9, 0)
         del param
 
     del lastNode
