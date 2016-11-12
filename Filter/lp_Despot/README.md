@@ -15,4 +15,4 @@ Essentially the tool erodes and afterwards dilates a channel by the same value (
 The edge matte works by using an eroded version of the matte as a stencil for a dilated one (both at the same value) and blurring it afterwards; a simple keymix with the original does the rest.
 
 
-http://i.imgur.com/65OB7hU.jpg
+![Screenshot](despot_bsp.png)
