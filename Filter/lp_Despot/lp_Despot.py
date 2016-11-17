@@ -16,19 +16,19 @@ except ImportError:
     pass
 
 def getPluginID():
-    return "lp_Despot"
+    return "lp"
 
 def getLabel():
     return "lp_Despot"
 
 def getVersion():
-    return 3
+    return 4
 
 def getGrouping():
     return "Filter"
 
 def getPluginDescription():
-    return "Eliminates black and white spots in channels. Can harm edge-detail.\n\nINPUTS\nimg = Connect the image you want to despot; despot will only happen in the alpha channel\nmask = A connected alpha will mask the operation, leaving the original alpha of the img-input\n\nHOW TO USE IT\nJust connect any source you want to despot int the alpha channel. There are individual controls for despotting either black or white pixels; as both operations can\'t happen at the same time, you can choose the order of operation yourself :)\nBecause of the nature of this tool, it can easily harm edge-detail, so use it with caution and don\'t over use :) to come by this limitation, you can try to enable the edge protect-function: this will enable a basic edge matte based on the despot result which is then used to keymix with the original alpha and its detail. You can adjust the thickness and softness of the edge matte with the given sliders.\n\nHOW DOES IT WORK\nEssentially the tool erodes and afterwards dilates a channel by the same value (and vice versa, depending if you despot for white or black). This will maintain the same shape overall, but get rid of fine detail.\nThe edge matte works by using an eroded version of the matte as a stencil for a dilated one (both at the same value) and blurring it afterwards; a simple keymix with the original does the rest."
+    return "Eliminates black and white spots in channels.\n\nINPUTS\nimg = Connect the image you want to despot; despot will only happen in the alpha channel mask = A connected alpha will mask the operation, leaving the original alpha of the img-input\n\nHOW TO USE IT\nJust connect any source you want to despot int the alpha channel. There are individual controls for despotting either black or white pixels; as both operations can\'t happen at the same time, you can choose the order of operation yourself :) Because of the nature of this tool, it can easily harm edge-detail, so use it with caution and don\'t over use :) to come by this limitation, you can try to enable the edge protect-function: this will enable a basic edge matte based on the despot result which is then used to keymix with the original alpha and its detail. You can adjust the thickness and softness of the edge matte with the given sliders.\n\nHOW DOES IT WORK\nEssentially the tool erodes and afterwards dilates a channel by the same value (and vice versa, depending if you despot for white or black). This will maintain the same shape overall, but get rid of fine detail. The edge matte works by using an eroded version of the matte as a stencil for a dilated one, blurring it afterwards; a simple keymix with the original does the rest."
 
 def createInstance(app,group):
     # Create all nodes in the group
@@ -204,42 +204,52 @@ def createInstance(app,group):
     lastNode.edgeprotect = param
     del param
 
-    param = lastNode.createInt2DParam("ErodeEdgesize", "thickness")
+    param = lastNode.createBooleanParam("prevedge", "preview")
+
+    # Add the param to the page
+    lastNode.userNatron.addParam(param)
+
+    # Set param properties
+    param.setHelp("Gives a preview of the edge protected area for easier setup. Preview happens in RGB as well as in the Alpha.")
+    param.setAddNewLine(False)
+    param.setAnimationEnabled(True)
+    lastNode.prevedge = param
+    del param
+
+    param = lastNode.createInt2DParam("edgethickness", "thickness")
     param.setMinimum(0, 0)
-    param.setMaximum(1000, 0)
     param.setDisplayMinimum(0, 0)
-    param.setDisplayMaximum(40, 0)
-    param.setDefaultValue(15, 0)
+    param.setDisplayMaximum(50, 0)
+    param.setDefaultValue(25, 0)
     param.restoreDefaultValue(0)
     param.setMinimum(0, 1)
-    param.setMaximum(1000, 1)
     param.setDisplayMinimum(0, 1)
-    param.setDisplayMaximum(40, 1)
-    param.setDefaultValue(15, 1)
+    param.setDisplayMaximum(50, 1)
+    param.setDefaultValue(25, 1)
     param.restoreDefaultValue(1)
 
     # Add the param to the page
     lastNode.userNatron.addParam(param)
 
     # Set param properties
-    param.setHelp("Expands the edge-matte for the edge protection.")
+    param.setHelp("Expands the edge-matte for the edge protection. \n\nHit \'2\' to adjust the inner and outer edge seperately.")
     param.setAddNewLine(True)
     param.setAnimationEnabled(True)
-    lastNode.ErodeEdgesize = param
+    lastNode.edgethickness = param
     del param
 
-    param = lastNode.createDouble2DParam("BlurEdgesize", "Size")
+    param = lastNode.createDouble2DParam("BlurEdgesize", "blur")
     param.setMinimum(0, 0)
     param.setMaximum(1000, 0)
     param.setDisplayMinimum(0, 0)
     param.setDisplayMaximum(40, 0)
-    param.setDefaultValue(5, 0)
+    param.setDefaultValue(10, 0)
     param.restoreDefaultValue(0)
     param.setMinimum(0, 1)
     param.setMaximum(1000, 1)
     param.setDisplayMinimum(0, 1)
     param.setDisplayMaximum(40, 1)
-    param.setDefaultValue(5, 1)
+    param.setDefaultValue(10, 1)
     param.restoreDefaultValue(1)
 
     # Add the param to the page
@@ -247,7 +257,7 @@ def createInstance(app,group):
 
     # Set param properties
     param.setHelp("Blurs the edge-matte for the edge protection.")
-    param.setAddNewLine(False)
+    param.setAddNewLine(True)
     param.setAnimationEnabled(True)
     lastNode.BlurEdgesize = param
     del param
@@ -292,13 +302,12 @@ def createInstance(app,group):
     del param
 
     # Refresh the GUI with the newly created parameters
-    lastNode.setPagesOrder(['userNatron', 'Node', 'Info'])
+    lastNode.setPagesOrder(['userNatron', 'Node'])
     lastNode.refreshUserParamsGUI()
     del lastNode
 
     # Start of node "Output1"
     lastNode = app.createNode("fr.inria.built-in.Output", 1, group)
-    lastNode.setScriptName("Output1")
     lastNode.setLabel("Output1")
     lastNode.setPosition(1393, 1585)
     lastNode.setSize(104, 31)
@@ -496,7 +505,6 @@ def createInstance(app,group):
     param = lastNode.getParam("size")
     if param is not None:
         param.setValue(1920, 0)
-        param.setValue(1080, 1)
         del param
 
     del lastNode
@@ -676,7 +684,7 @@ def createInstance(app,group):
     lastNode = app.createNode("net.sf.cimg.CImgErode", 2, group)
     lastNode.setScriptName("ErodeEdge")
     lastNode.setLabel("ErodeEdge")
-    lastNode.setPosition(1698, 788)
+    lastNode.setPosition(1652, 782)
     lastNode.setSize(104, 43)
     lastNode.setColor(0.8, 0.5, 0.3)
     groupErodeEdge = lastNode
@@ -698,8 +706,8 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(15, 0)
-        param.setValue(15, 1)
+        param.setValue(25, 0)
+        param.setValue(25, 1)
         del param
 
     param = lastNode.getParam("expandRoD")
@@ -719,7 +727,7 @@ def createInstance(app,group):
     lastNode = app.createNode("net.sf.cimg.CImgErode", 2, group)
     lastNode.setScriptName("ErodeEdge2")
     lastNode.setLabel("ErodeEdge2")
-    lastNode.setPosition(1855, 789)
+    lastNode.setPosition(1891, 780)
     lastNode.setSize(104, 43)
     lastNode.setColor(0.8, 0.5, 0.3)
     groupErodeEdge2 = lastNode
@@ -741,8 +749,8 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(-15, 0)
-        param.setValue(-15, 1)
+        param.setValue(-25, 0)
+        param.setValue(-25, 1)
         del param
 
     param = lastNode.getParam("expandRoD")
@@ -830,8 +838,8 @@ def createInstance(app,group):
 
     param = lastNode.getParam("size")
     if param is not None:
-        param.setValue(5, 0)
-        param.setValue(5, 1)
+        param.setValue(10, 0)
+        param.setValue(10, 1)
         del param
 
     param = lastNode.getParam("expandRoD")
@@ -1547,8 +1555,73 @@ def createInstance(app,group):
     del lastNode
     # End of node "Dot16"
 
+    # Start of node "preview_edge"
+    lastNode = app.createNode("net.sf.openfx.GradePlugin", 2, group)
+    lastNode.setScriptName("preview_edge")
+    lastNode.setLabel("preview_edge")
+    lastNode.setPosition(1393, 1410)
+    lastNode.setSize(104, 43)
+    lastNode.setColor(0.48, 0.66, 1)
+    grouppreview_edge = lastNode
+
+    param = lastNode.getParam("NatronOfxParamProcessA")
+    if param is not None:
+        param.setValue(True)
+        del param
+
+    param = lastNode.getParam("white")
+    if param is not None:
+        param.setValue(0, 0)
+        param.setValue(0, 1)
+        param.setValue(0, 2)
+        param.setValue(0, 3)
+        del param
+
+    param = lastNode.getParam("offset")
+    if param is not None:
+        param.setValue(0.5, 0)
+        param.setValue(0.1, 1)
+        param.setValue(0.2, 2)
+        param.setValue(0.5, 3)
+        del param
+
+    param = lastNode.getParam("clampWhite")
+    if param is not None:
+        param.setValue(True)
+        del param
+
+    param = lastNode.getParam("mix")
+    if param is not None:
+        param.setValue(0.5, 0)
+        del param
+
+    param = lastNode.getParam("enableMask_Mask")
+    if param is not None:
+        param.setValue(True)
+        del param
+
+    param = lastNode.getParam("disableNode")
+    if param is not None:
+        param.setValue(True)
+        del param
+
+    del lastNode
+    # End of node "preview_edge"
+
+    # Start of node "Dot17"
+    lastNode = app.createNode("fr.inria.built-in.Dot", 1, group)
+    lastNode.setScriptName("Dot17")
+    lastNode.setLabel("Dot17")
+    lastNode.setPosition(1822, 1424)
+    lastNode.setSize(15, 15)
+    lastNode.setColor(0.7, 0.7, 0.7)
+    groupDot17 = lastNode
+
+    del lastNode
+    # End of node "Dot17"
+
     # Now that all nodes are created we can connect them together, restore expressions
-    groupOutput1.connectInput(0, groupMerge1)
+    groupOutput1.connectInput(0, grouppreview_edge)
     groupErode1.connectInput(0, groupDot2)
     groupErode1_2.connectInput(0, groupErode1)
     groupDot2.connectInput(0, groupDot14)
@@ -1612,6 +1685,9 @@ def createInstance(app,group):
     groupDot13_2.connectInput(0, groupDot12_2)
     groupDot15.connectInput(0, groupDot14)
     groupDot16.connectInput(0, groupSwitch1_3)
+    grouppreview_edge.connectInput(0, groupMerge1)
+    grouppreview_edge.connectInput(1, groupDot17)
+    groupDot17.connectInput(0, groupDot11)
 
     param = groupErode1.getParam("size")
     group.getParam("Erode1size").setAsAlias(param)
@@ -1687,11 +1763,12 @@ def createInstance(app,group):
     group.getParam("Blur1filter").setAsAlias(param)
     del param
     param = groupErodeEdge.getParam("size")
-    group.getParam("ErodeEdgesize").setAsAlias(param)
+    param.setExpression("thisGroup.edgethickness.get()[0]", False, 0)
+    param.setExpression("thisGroup.edgethickness.get()[0]", False, 1)
     del param
     param = groupErodeEdge2.getParam("size")
-    param.setExpression("thisGroup.ErodeEdge.size.get()[dimension]*-1", False, 0)
-    param.setExpression("thisGroup.ErodeEdge.size.get()[dimension]*-1", False, 1)
+    param.setExpression("thisGroup.edgethickness.get()[1] * -1", False, 0)
+    param.setExpression("thisGroup.edgethickness.get()[1] * -1", False, 1)
     del param
     param = groupBlurEdge.getParam("size")
     group.getParam("BlurEdgesize").setAsAlias(param)
@@ -1749,6 +1826,9 @@ def createInstance(app,group):
     del param
     param = groupSwitch1_2_2.getParam("which")
     param.setExpression("thisGroup.filterselectB.get()", False, 0)
+    del param
+    param = grouppreview_edge.getParam("disableNode")
+    param.setExpression("1-thisGroup.prevedge.get()", False, 0)
     del param
 
     try:
