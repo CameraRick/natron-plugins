@@ -5,7 +5,8 @@ Eliminates black and white spots in channels.
 
 INPUTS
 
-img = Connect the image you want to despot; despot will only happen in the alpha channel /n
+img = Connect the image you want to despot; despot will only happen in the alpha channel 
+
 mask = A connected alpha will mask the operation, leaving the original alpha of the img-input
 
 HOW TO USE IT
