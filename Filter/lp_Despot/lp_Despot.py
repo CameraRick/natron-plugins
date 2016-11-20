@@ -16,19 +16,19 @@ except ImportError:
     pass
 
 def getPluginID():
-    return "lp"
+    return "lp_Despot"
 
 def getLabel():
     return "lp_Despot"
 
 def getVersion():
-    return 4
+    return 5
 
 def getGrouping():
     return "Filter"
 
 def getPluginDescription():
-    return "Eliminates black and white spots in channels.\n\nINPUTS\nimg = Connect the image you want to despot; despot will only happen in the alpha channel mask = A connected alpha will mask the operation, leaving the original alpha of the img-input\n\nHOW TO USE IT\nJust connect any source you want to despot int the alpha channel. There are individual controls for despotting either black or white pixels; as both operations can\'t happen at the same time, you can choose the order of operation yourself :) Because of the nature of this tool, it can easily harm edge-detail, so use it with caution and don\'t over use :) to come by this limitation, you can try to enable the edge protect-function: this will enable a basic edge matte based on the despot result which is then used to keymix with the original alpha and its detail. You can adjust the thickness and softness of the edge matte with the given sliders.\n\nHOW DOES IT WORK\nEssentially the tool erodes and afterwards dilates a channel by the same value (and vice versa, depending if you despot for white or black). This will maintain the same shape overall, but get rid of fine detail. The edge matte works by using an eroded version of the matte as a stencil for a dilated one, blurring it afterwards; a simple keymix with the original does the rest."
+    return "Eliminates black and white spots in channels.\n\nINPUTS\nimg = Connect the image you want to despot; despot will only happen in the alpha channel \nmask = A connected alpha will mask the operation, leaving the original alpha of the img-input\n\nHOW TO USE IT\nJust connect any source you want to despot int the alpha channel. There are individual controls for despotting either black or white pixels; as both operations can\'t happen at the same time, you can choose the order of operation yourself :) Because of the nature of this tool, it can easily harm edge-detail, so use it with caution and don\'t over use :) to come by this limitation, you can try to enable the edge protect-function: this will enable a basic edge matte based on the despot result which is then used to keymix with the original alpha and its detail. You can adjust the thickness and softness of the edge matte with the given sliders.\n\nHOW DOES IT WORK\nEssentially the tool erodes and afterwards dilates a channel by the same value (and vice versa, depending if you despot for white or black). This will maintain the same shape overall, but get rid of fine detail. The edge matte works by using an eroded version of the matte as a stencil for a dilated one, blurring it afterwards; a simple keymix with the original does the rest."
 
 def createInstance(app,group):
     # Create all nodes in the group
@@ -72,7 +72,7 @@ def createInstance(app,group):
     lastNode.userNatron.addParam(param)
 
     # Set param properties
-    param.setHelp("Negative values despot for black, positive values despot for white")
+    param.setHelp("Despots for white pixels.")
     param.setAddNewLine(True)
     param.setAnimationEnabled(True)
     lastNode.Erode1size = param
@@ -88,7 +88,7 @@ def createInstance(app,group):
     lastNode.userNatron.addParam(param)
 
     # Set param properties
-    param.setHelp("Sets the filter for the white despot.\n\n\'default\' is the default filter of the Erode-Node. No idea what that is; Box? Gaussian? Anyways, it\'s that.")
+    param.setHelp("Sets the filter for the white despot.\n\n\'default\' is the default filter of the Erode node. No idea what that is; maybeBox? Anyways, it\'s that. \n\'round\' utilizes ErodeBlur.")
     param.setAddNewLine(False)
     param.setAnimationEnabled(True)
     lastNode.filterselect = param
@@ -112,8 +112,11 @@ def createInstance(app,group):
     lastNode.userNatron.addParam(param)
 
     # Set param properties
+    param.setHelp("Despots for black pixels.")
     param.setAddNewLine(True)
     param.setAnimationEnabled(True)
+    param.setEnabled(False, 0)
+    param.setEnabled(False, 1)
     lastNode.Erode1_3size = param
     del param
 
@@ -127,7 +130,7 @@ def createInstance(app,group):
     lastNode.userNatron.addParam(param)
 
     # Set param properties
-    param.setHelp("Sets the filter for black despot.\n\n\'default\' is the default filter of the Erode-Node. No idea what that is; Box? Gaussian? Anyways, it\'s that.")
+    param.setHelp("Sets the filter for black despot.\n\n\'default\' is the default filter of the Erode node. No idea what that is; maybeBox? Anyways, it\'s that. \n\'round\' utilizes ErodeBlur.")
     param.setAddNewLine(False)
     param.setAnimationEnabled(True)
     lastNode.filterselectB = param
@@ -160,7 +163,7 @@ def createInstance(app,group):
     lastNode.userNatron.addParam(param)
 
     # Set param properties
-    param.setHelp("Blurs the result of despot operation")
+    param.setHelp("Blurs the result of despot operation.\n\nThis is meant for auxiliary mattes and makes not too much sense with enabled edge-protection.")
     param.setAddNewLine(True)
     param.setAnimationEnabled(True)
     lastNode.Blur1size = param
@@ -281,24 +284,25 @@ def createInstance(app,group):
     lastNode.userNatron.addParam(param)
 
     # Set param properties
-    param.setHelp("Inverts the connected mask.")
+    param.setHelp("Inverts the connected mask.\n\nMake sure to uncheck when no mask is connected.")
     param.setAddNewLine(True)
     param.setAnimationEnabled(False)
     lastNode.invmask = param
     del param
 
-    param = lastNode.createStringParam("copyright", "")
+    param = lastNode.createStringParam("credit", "")
     param.setType(NatronEngine.StringParam.TypeEnum.eStringTypeLabel)
 
     # Add the param to the page
     lastNode.userNatron.addParam(param)
 
     # Set param properties
-    param.setHelp("lp_Despot v1.0\n(c) 2016 by lucas pfaff")
+    param.setHelp("lp_Despot v5.0\n(c)2016 by lucas pfaff")
     param.setAddNewLine(True)
     param.setEvaluateOnChange(False)
     param.setAnimationEnabled(False)
-    lastNode.copyright = param
+    param.setVisibleByDefault(False)
+    lastNode.credit = param
     del param
 
     # Refresh the GUI with the newly created parameters
@@ -675,6 +679,12 @@ def createInstance(app,group):
     param = lastNode.getParam("NatronOfxParamProcessB")
     if param is not None:
         param.setValue(False)
+        del param
+
+    param = lastNode.getParam("size")
+    if param is not None:
+        param.setValue(0, 0)
+        param.setValue(0, 1)
         del param
 
     del lastNode
@@ -1795,9 +1805,6 @@ def createInstance(app,group):
     param = groupp1.getParam("which")
     param.setExpression("thisGroup.despotorder.get()", False, 0)
     del param
-    param = groupErode1_4.getParam("size")
-    group.getParam("Erode1size").setAsAlias(param)
-    del param
     param = groupErode1_2_3.getParam("size")
     param.setExpression("thisGroup.Erode1_4.size.get()[dimension]*-1", False, 0)
     param.setExpression("thisGroup.Erode1_4.size.get()[dimension]*-1", False, 1)
@@ -1810,9 +1817,6 @@ def createInstance(app,group):
     del param
     param = groupSwitch1_3.getParam("which")
     param.setExpression("thisGroup.filterselect.get()", False, 0)
-    del param
-    param = groupErode1_3_2.getParam("size")
-    group.getParam("Erode1_3size").setAsAlias(param)
     del param
     param = groupErode1_2_2_2.getParam("size")
     param.setExpression("thisGroup.Erode1_3_2.size.get()[dimension]*-1", False, 0)
@@ -1831,6 +1835,10 @@ def createInstance(app,group):
     param.setExpression("1-thisGroup.prevedge.get()", False, 0)
     del param
 
+    param = group.getParam("Erode1_3size")
+    param.slaveTo(group.getParam("Erode1size"), 0, 0)
+    param.slaveTo(group.getParam("Erode1size"), 1, 1)
+    del param
     try:
         extModule = sys.modules["lp_DespotExt"]
     except KeyError:
