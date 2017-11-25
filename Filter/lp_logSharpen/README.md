@@ -4,7 +4,6 @@ Sharpens the image in LOG space to get around typical dark edges. Also features 
 
 INPUTS
 img = Connect the image you want to sharpen
-mask = You know what it's for :)
 
 HOW TO USE IT
 Adjust the amount and size to get to your sharpen-needs. The size will set the radius of the operation, while the amount will set how much the image will be sharpened.
